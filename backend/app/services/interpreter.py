@@ -1,4 +1,5 @@
 import json
+from datetime import date, datetime
 from decimal import Decimal
 
 from app.services.messages import detect_language
@@ -8,6 +9,8 @@ from app.services.ollama import ask_mistral
 def to_jsonable(value):
     if isinstance(value, Decimal):
         return float(value)
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
     if isinstance(value, dict):
         return {key: to_jsonable(item) for key, item in value.items()}
     if isinstance(value, list):
@@ -15,50 +18,107 @@ def to_jsonable(value):
     return value
 
 
-def compute_kpis(data: list[dict]) -> dict:
-    data = to_jsonable(data)
+def extract_label(row: dict):
+    label_keys = [
+        "name",
+        "region",
+        "category",
+        "product",
+        "produit",
+        "month",
+        "mois",
+    ]
 
-    if not data:
+    for key in label_keys:
+        if row.get(key) is not None:
+            return str(row[key])
+
+    return None
+
+
+def extract_numeric(row: dict, keys: list[str]):
+    for key in keys:
+        value = row.get(key)
+
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            return value
+
+    return None
+
+
+def compute_kpis(data: list[dict]) -> dict:
+    safe_data = to_jsonable(data)
+
+    if not safe_data:
         return {
             "row_count": 0,
-            "total_amount": 0,
-            "total_quantity": 0,
+            "total_amount": None,
+            "total_quantity": None,
             "top_item": None,
         }
 
+    amount_keys = [
+        "total_amount",
+        "total_sales",
+        "total_ventes",
+        "revenue",
+        "chiffre_affaires",
+    ]
+
+    quantity_keys = [
+        "total_quantity",
+        "quantity",
+        "qty",
+        "total_sales_per_region",
+    ]
+
     total_amount = 0
     total_quantity = 0
+    has_amount = False
+    has_quantity = False
     top_item = None
     top_value = None
+    top_metric = None
 
-    for row in data:
-        amount = row.get("total_amount") or row.get("total_sales") or row.get("total_ventes")
-        quantity = row.get("total_quantity") or row.get("quantity")
+    for row in safe_data:
+        amount = extract_numeric(row, amount_keys)
+        quantity = extract_numeric(row, quantity_keys)
 
-        if isinstance(amount, (int, float)):
+        if amount is not None:
             total_amount += amount
-            label = (
-                row.get("name")
-                or row.get("region")
-                or row.get("category")
-                or row.get("product")
-            )
-            if top_value is None or amount > top_value:
-                top_value = amount
-                top_item = {"label": label, "value": amount}
+            has_amount = True
 
-        if isinstance(quantity, (int, float)):
+        if quantity is not None:
             total_quantity += quantity
+            has_quantity = True
+
+        metric_value = amount if amount is not None else quantity
+        metric_name = "amount" if amount is not None else "quantity"
+
+        if metric_value is not None:
+            if top_value is None or metric_value > top_value:
+                top_value = metric_value
+                top_metric = metric_name
+                top_item = {
+                    "label": extract_label(row),
+                    "value": metric_value,
+                    "metric": metric_name,
+                }
 
     return {
-        "row_count": len(data),
-        "total_amount": total_amount,
-        "total_quantity": total_quantity,
+        "row_count": len(safe_data),
+        "total_amount": total_amount if has_amount else None,
+        "total_quantity": total_quantity if has_quantity else None,
         "top_item": top_item,
+        "top_metric": top_metric,
     }
 
 
-def interpret_results(question: str, data: list[dict], kpis: dict) -> str:
+def interpret_results(
+    question: str,
+    data: list[dict],
+    kpis: dict,
+) -> str:
     lang = detect_language(question)
     safe_data = to_jsonable(data)
     safe_kpis = to_jsonable(kpis)
@@ -66,9 +126,10 @@ def interpret_results(question: str, data: list[dict], kpis: dict) -> str:
     if lang == "en":
         prompt = f"""
 You are a business analytics assistant.
-Write a short interpretation (2-3 sentences) of these results.
-Mention the main KPI insights clearly.
-Do not invent numbers that are not in the data.
+Write a short interpretation of these results in 2 or 3 sentences.
+Mention only KPIs that are available.
+Do not invent numbers, currencies, percentages, or facts.
+If no currency is provided, do not add a currency symbol.
 
 Question: {question}
 KPIs: {json.dumps(safe_kpis, ensure_ascii=False)}
@@ -78,9 +139,10 @@ Interpretation:
     else:
         prompt = f"""
 Tu es un assistant d'analyse métier.
-Rédige une courte interprétation (2-3 phrases) de ces résultats.
-Mentionne clairement les principaux KPI.
-N'invente aucun chiffre qui n'est pas dans les données.
+Rédige une courte interprétation de ces résultats en 2 ou 3 phrases.
+Mentionne uniquement les KPI disponibles.
+N'invente aucun chiffre, aucune devise, aucun pourcentage ou fait.
+Si aucune devise n'est fournie, n'ajoute pas de symbole monétaire.
 
 Question : {question}
 KPI : {json.dumps(safe_kpis, ensure_ascii=False)}
