@@ -1,7 +1,8 @@
+from app.services.messages import detect_language
 from app.services.ollama import ask_mistral
 
 SCHEMA_DESCRIPTION = """
-Tables disponibles :
+Available tables / Tables disponibles :
 - regions(id, name)
 - products(id, name, category, unit_price)
 - sales(id, sale_date, region_id, product_id, quantity, total_amount)
@@ -14,16 +15,30 @@ Relations :
 
 
 def build_sql_prompt(question: str) -> str:
-    return f"""
+    lang = detect_language(question)
+
+    if lang == "en":
+        instructions = """
+You are a PostgreSQL SQL assistant.
+From the user question, generate ONLY a valid SELECT SQL query.
+Do not explain. Do not use markdown. Do not use ```sql.
+Use only these tables:
+"""
+    else:
+        instructions = """
 Tu es un assistant SQL pour PostgreSQL.
 À partir de la question utilisateur, génère UNIQUEMENT une requête SQL SELECT valide.
 N'explique rien. Ne mets pas de markdown. Ne mets pas de ```sql.
 Utilise uniquement ces tables :
+"""
+
+    return f"""
+{instructions.strip()}
 
 {SCHEMA_DESCRIPTION}
 
-Question : {question}
-SQL :
+Question: {question}
+SQL:
 """.strip()
 
 

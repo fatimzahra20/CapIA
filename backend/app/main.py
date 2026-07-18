@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.routers import ai, regions, sales
+from app.services.messages import bilingual
 
 app = FastAPI(title="CAP AI")
 
@@ -14,10 +15,16 @@ app.include_router(ai.router)
 
 @app.get("/")
 def root():
-    return {"message": "CAP AI backend is running"}
+    return {"message": bilingual("backend_running")}
 
 
 @app.get("/health/db")
 def health_db(db: Session = Depends(get_db)):
     result = db.execute(text("SELECT 1")).scalar()
-    return {"database": "ok", "result": result}
+    return {
+        "database": {
+            "fr": "ok",
+            "en": "ok",
+        },
+        "result": result,
+    }

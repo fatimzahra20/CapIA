@@ -2,6 +2,8 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.services.messages import bilingual
+
 
 def is_safe_select(sql: str) -> bool:
     cleaned = " ".join(sql.strip().lower().split())
@@ -21,14 +23,14 @@ def execute_select(db: Session, sql: str):
     if not is_safe_select(sql):
         raise HTTPException(
             status_code=400,
-            detail="Seules les requêtes SELECT sont autorisées",
+            detail=bilingual("select_only"),
         )
 
     try:
         rows = db.execute(text(sql)).mappings().all()
         return [dict(row) for row in rows]
     except Exception as error:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Erreur SQL: {error}",
-        ) from error
+        detail = bilingual("sql_error")
+        detail["fr"] = f"{detail['fr']}: {error}"
+        detail["en"] = f"{detail['en']}: {error}"
+        raise HTTPException(status_code=400, detail=detail) from error
