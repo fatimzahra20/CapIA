@@ -2,14 +2,14 @@ const texts = {
   fr: {
     home: "Accueil",
     analysis: "Analyser",
-    dashboard: "Dashboard",
-    cta: "Commencer",
+    dashboard: "Tableau de bord",
+    cta: "Analyser",
   },
   en: {
     home: "Home",
     analysis: "Analyze",
     dashboard: "Dashboard",
-    cta: "Get started",
+    cta: "Analyze",
   },
 };
 

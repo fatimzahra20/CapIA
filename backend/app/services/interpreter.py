@@ -133,11 +133,12 @@ def interpret_results(
 
     if lang == "en":
         prompt = f"""
-You are a business analytics assistant.
-Write a short interpretation of these results in 2 or 3 sentences.
-Mention only KPIs that are available.
-Do not invent numbers, currencies, percentages, or facts.
-If no currency is provided, do not add a currency symbol.
+You are a sales analytics assistant for commercial managers.
+Write a short decision-oriented interpretation in 2 or 3 sentences.
+Focus on revenue (DH), best region/product, and sales volume when available.
+Use the currency DH for monetary amounts when total_amount/total_sales is present.
+Do not invent numbers, percentages, or facts that are not in the data.
+Do not mention SQL or technical internals.
 
 Question: {question}
 KPIs: {json.dumps(safe_kpis, ensure_ascii=False)}
@@ -146,11 +147,12 @@ Interpretation:
 """.strip()
     else:
         prompt = f"""
-Tu es un assistant d'analyse métier.
-Rédige une courte interprétation de ces résultats en 2 ou 3 phrases.
-Mentionne uniquement les KPI disponibles.
-N'invente aucun chiffre, aucune devise, aucun pourcentage ou fait.
-Si aucune devise n'est fournie, n'ajoute pas de symbole monétaire.
+Tu es un assistant d'analyse commerciale pour des responsables des ventes.
+Rédige une courte interprétation orientée décision en 2 ou 3 phrases.
+Concentre-toi sur le chiffre d'affaires (DH), la meilleure région/produit et le volume de ventes quand c'est disponible.
+Utilise la devise DH pour les montants monétaires lorsque total_amount/total_sales est présent.
+N'invente aucun chiffre, pourcentage ou fait absent des données.
+Ne mentionne ni le SQL ni les détails techniques.
 
 Question : {question}
 KPI : {json.dumps(safe_kpis, ensure_ascii=False)}

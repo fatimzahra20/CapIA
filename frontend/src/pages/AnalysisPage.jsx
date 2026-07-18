@@ -4,36 +4,58 @@ import ResultsChart from "../components/ResultsChart";
 
 const texts = {
   fr: {
-    title: "Analyser",
-    subtitle: "Posez une question sur vos données en français ou en anglais.",
-    placeholder: "Ex. Affiche les ventes par région",
+    title: "Analyse commerciale",
+    subtitle:
+      "Posez une question sur vos ventes, régions ou produits. Devise : DH.",
+    placeholder: "Ex. Affiche le chiffre d'affaires par région",
     button: "Analyser",
     loading: "Analyse en cours…",
     language: "Langue détectée",
-    interpretation: "Interprétation",
+    interpretation: "Interprétation commerciale",
     rows: "Lignes",
-    total: "Montant total",
-    quantity: "Quantité totale",
+    total: "Chiffre d'affaires (DH)",
+    quantity: "Unités vendues",
     top: "Meilleur élément",
     history: "Historique des analyses",
-    emptyHistory: "Aucune analyse enregistrée pour le moment.",
+    emptyHistory: "Aucune analyse commerciale enregistrée pour le moment.",
+    suggestionsTitle: "Questions suggérées",
+    suggestions: [
+      "Affiche les ventes par région",
+      "Quel est le produit le plus vendu ?",
+      "Montre le chiffre d'affaires par catégorie",
+      "Quelles sont les ventes du premier trimestre ?",
+    ],
   },
   en: {
-    title: "Analyze",
-    subtitle: "Ask a question about your data in French or English.",
-    placeholder: "e.g. Show sales by region",
+    title: "Sales analysis",
+    subtitle: "Ask about your sales, regions or products. Currency: DH.",
+    placeholder: "e.g. Show revenue by region",
     button: "Analyze",
     loading: "Analyzing…",
     language: "Detected language",
-    interpretation: "Interpretation",
+    interpretation: "Commercial interpretation",
     rows: "Rows",
-    total: "Total amount",
-    quantity: "Total quantity",
+    total: "Revenue (DH)",
+    quantity: "Units sold",
     top: "Top item",
     history: "Analysis history",
-    emptyHistory: "No analysis saved yet.",
+    emptyHistory: "No sales analysis saved yet.",
+    suggestionsTitle: "Suggested questions",
+    suggestions: [
+      "Show sales by region",
+      "What is the best-selling product?",
+      "Show revenue by category",
+      "What were sales in the first quarter?",
+    ],
   },
 };
+
+function formatAmount(value) {
+  if (value === null || value === undefined || value === "-") {
+    return "-";
+  }
+  return `${Number(value).toLocaleString("fr-FR")} DH`;
+}
 
 function AnalysisPage({ lang, onLangChange }) {
   const [question, setQuestion] = useState("");
@@ -93,12 +115,31 @@ function AnalysisPage({ lang, onLangChange }) {
     }
   }
 
+  function applySuggestion(suggestion) {
+    setQuestion(suggestion);
+  }
+
   return (
     <main className="analysis-page">
       <header className="analysis-header">
         <h1>{t.title}</h1>
         <p>{t.subtitle}</p>
       </header>
+
+      <section className="suggestions-panel">
+        <h2>{t.suggestionsTitle}</h2>
+        <div className="suggestions-list">
+          {t.suggestions.map((suggestion) => (
+            <button
+              key={suggestion}
+              type="button"
+              onClick={() => applySuggestion(suggestion)}
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      </section>
 
       <form className="analysis-form" onSubmit={handleSubmit}>
         <textarea
@@ -128,7 +169,7 @@ function AnalysisPage({ lang, onLangChange }) {
             </article>
             <article>
               <h3>{t.total}</h3>
-              <p>{result.kpis?.total_amount ?? "-"}</p>
+              <p>{formatAmount(result.kpis?.total_amount)}</p>
             </article>
             <article>
               <h3>{t.quantity}</h3>
@@ -138,7 +179,11 @@ function AnalysisPage({ lang, onLangChange }) {
               <h3>{t.top}</h3>
               <p>
                 {result.kpis?.top_item?.label
-                  ? `${result.kpis.top_item.label} (${result.kpis.top_item.value})`
+                  ? `${result.kpis.top_item.label} (${
+                      result.kpis.top_item.metric === "amount"
+                        ? formatAmount(result.kpis.top_item.value)
+                        : result.kpis.top_item.value
+                    })`
                   : "-"}
               </p>
             </article>

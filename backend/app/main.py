@@ -7,7 +7,10 @@ from app.database import get_db
 from app.routers import ai, dashboard, regions, sales
 from app.services.messages import bilingual
 
-app = FastAPI(title="CAP AI")
+app = FastAPI(
+    title="CAP AI",
+    description="Assistant d'analyse commerciale / Sales analytics assistant",
+)
 
 app.add_middleware(
     CORSMiddleware,

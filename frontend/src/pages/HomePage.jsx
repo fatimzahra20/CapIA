@@ -1,81 +1,81 @@
 const texts = {
   fr: {
-    badge: "Analyse intelligente de données",
-    titleStart: "Posez vos questions.",
-    titleHighlight: "Obtenez des réponses",
-    titleEnd: "claires.",
+    badge: "Assistant d'analyse commerciale",
+    titleStart: "Analysez vos ventes",
+    titleHighlight: "en langage naturel",
+    titleEnd: "",
     subtitle:
-      "CAP AI comprend vos données, génère des analyses, des KPI, des graphiques et des interprétations en quelques secondes. Simple, rapide et intelligent.",
-    ctaPrimary: "Commencer une analyse",
-    ctaSecondary: "Voir le dashboard",
-    trust: "Sécurisé • Rapide • Intelligent",
+      "Posez une question sur votre chiffre d'affaires, vos régions ou vos produits. CAP AI calcule les KPI, affiche le graphique et propose une interprétation commerciale.",
+    ctaPrimary: "Analyser mes ventes",
+    ctaSecondary: "Voir le tableau de bord",
+    trust: "Orienté ventes • KPI en DH • FR / EN",
     features: [
       {
         icon: "💬",
-        title: "Posez en langage naturel",
+        title: "Questions commerciales",
         description:
-          "Écrivez vos questions en français ou en anglais, comme à un expert.",
+          "Demandez le CA par région, le top produit ou la performance du trimestre.",
       },
       {
-        icon: "📊",
-        title: "Analysez instantanément",
+        icon: "📈",
+        title: "KPI métier",
         description:
-          "CAP AI génère les requêtes, analyse les données et calcule les KPI.",
+          "Chiffre d'affaires, meilleure région, produit phare et volumes de ventes.",
       },
       {
-        icon: "🛡️",
-        title: "Des résultats exploitables",
+        icon: "🧭",
+        title: "Décisions plus rapides",
         description:
-          "Visualisez vos données avec des graphiques et des interprétations claires.",
+          "Graphiques et interprétation pour aider les responsables commerciaux.",
       },
     ],
     preview: {
-      question: "Montre le chiffre d'affaires par région ce mois-ci",
+      question: "Affiche le chiffre d'affaires par région",
       kpis: [
-        { label: "Chiffre d'affaires", value: "12 450 DH" },
+        { label: "CA total", value: "6 595 DH" },
         { label: "Meilleure région", value: "Nord" },
-        { label: "Ventes", value: "320" },
-        { label: "Produits vendus", value: "2 150" },
+        { label: "Top produit", value: "Ordinateur" },
+        { label: "Unités vendues", value: "39" },
       ],
     },
   },
   en: {
-    badge: "Smart data analytics",
-    titleStart: "Ask your questions.",
-    titleHighlight: "Get clear",
-    titleEnd: "answers.",
+    badge: "Sales analytics assistant",
+    titleStart: "Analyze your sales",
+    titleHighlight: "in natural language",
+    titleEnd: "",
     subtitle:
-      "CAP AI understands your data and generates analyses, KPIs, charts and interpretations in seconds. Simple, fast and smart.",
-    ctaPrimary: "Start an analysis",
-    ctaSecondary: "View dashboard",
-    trust: "Secure • Fast • Smart",
+      "Ask about revenue, regions or products. CAP AI computes KPIs, shows the chart and delivers a commercial interpretation.",
+    ctaPrimary: "Analyze my sales",
+    ctaSecondary: "Open sales dashboard",
+    trust: "Sales-focused • KPIs in DH • FR / EN",
     features: [
       {
         icon: "💬",
-        title: "Ask in natural language",
+        title: "Commercial questions",
         description:
-          "Write your questions in French or English, like talking to an expert.",
+          "Ask for revenue by region, top products or quarterly performance.",
       },
       {
-        icon: "📊",
-        title: "Analyze instantly",
+        icon: "📈",
+        title: "Business KPIs",
         description:
-          "CAP AI generates queries, analyzes data and computes KPIs.",
+          "Revenue, best region, top product and sales volumes.",
       },
       {
-        icon: "🛡️",
-        title: "Actionable results",
+        icon: "🧭",
+        title: "Faster decisions",
         description:
-          "Visualize your data with clear charts and interpretations.",
+          "Charts and interpretation designed for sales managers.",
       },
     ],
     preview: {
-      question: "Show revenue by region this month",
+      question: "Show revenue by region",
       kpis: [
-        { label: "Revenue", value: "12,450 DH" },
+        { label: "Total revenue", value: "6,595 DH" },
         { label: "Best region", value: "Nord" },
-        { label: "Sales", value: "320" },
-        { label: "Units sold", value: "2,150" },
+        { label: "Top product", value: "Laptop" },
+        { label: "Units sold", value: "39" },
       ],
     },
   },
@@ -92,7 +92,8 @@ function HomePage({ lang, onStart, onDashboard }) {
           <h1>
             {t.titleStart}
             <br />
-            <span className="highlight">{t.titleHighlight}</span> {t.titleEnd}
+            <span className="highlight">{t.titleHighlight}</span>
+            {t.titleEnd ? ` ${t.titleEnd}` : ""}
           </h1>
           <p className="home-subtitle">{t.subtitle}</p>
           <div className="home-cta-row">

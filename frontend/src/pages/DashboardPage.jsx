@@ -4,35 +4,44 @@ import { fetchDashboard } from "../services/api";
 
 const texts = {
   fr: {
-    title: "Tableau de bord",
-    subtitle: "Vue d'ensemble des performances commerciales.",
-    loading: "Chargement du dashboard…",
-    error: "Impossible de charger le dashboard. Vérifiez que le backend est démarré.",
-    revenue: "Chiffre d'affaires total",
+    title: "Tableau de bord commercial",
+    subtitle: "Performance des ventes, régions et produits. Devise : DH.",
+    loading: "Chargement du tableau de bord…",
+    error:
+      "Impossible de charger le tableau de bord. Vérifiez que le backend est démarré.",
+    revenue: "Chiffre d'affaires",
     bestRegion: "Meilleure région",
-    salesCount: "Ventes",
-    unitsSold: "Produits vendus",
-    byRegion: "Ventes par région",
-    byCategory: "Répartition par catégorie",
-    monthly: "Évolution mensuelle",
+    topProduct: "Produit phare",
+    unitsSold: "Unités vendues",
+    averageTicket: "Panier moyen",
+    byRegion: "CA par région",
+    byCategory: "CA par catégorie",
+    topProducts: "Top produits",
+    monthly: "Évolution mensuelle du CA",
   },
   en: {
-    title: "Dashboard",
-    subtitle: "Overview of business performance.",
+    title: "Sales dashboard",
+    subtitle: "Sales performance by region and product. Currency: DH.",
     loading: "Loading dashboard…",
     error: "Unable to load the dashboard. Make sure the backend is running.",
-    revenue: "Total revenue",
+    revenue: "Revenue",
     bestRegion: "Best region",
-    salesCount: "Sales",
+    topProduct: "Top product",
     unitsSold: "Units sold",
-    byRegion: "Sales by region",
-    byCategory: "Breakdown by category",
-    monthly: "Monthly trend",
+    averageTicket: "Average ticket",
+    byRegion: "Revenue by region",
+    byCategory: "Revenue by category",
+    topProducts: "Top products",
+    monthly: "Monthly revenue trend",
   },
 };
 
 const BLUE = "#2563eb";
 const PALETTE = ["#2563eb", "#60a5fa", "#93c5fd", "#bfdbfe", "#1e40af"];
+
+function formatDh(value) {
+  return `${Number(value || 0).toLocaleString("fr-FR")} DH`;
+}
 
 function DashboardPage({ lang }) {
   const t = texts[lang];
@@ -88,6 +97,7 @@ function DashboardPage({ lang }) {
   const totals = summary.totals || {};
   const byRegion = summary.sales_by_region || [];
   const byCategory = summary.sales_by_category || [];
+  const topProducts = summary.top_products || [];
   const monthly = summary.monthly_sales || [];
 
   const barOption = {
@@ -127,6 +137,25 @@ function DashboardPage({ lang }) {
     ],
   };
 
+  const productsOption = {
+    tooltip: { trigger: "axis" },
+    grid: { left: "4%", right: "4%", bottom: "8%", containLabel: true },
+    xAxis: {
+      type: "category",
+      data: topProducts.map((row) => row.name),
+      axisLabel: { rotate: 20 },
+    },
+    yAxis: { type: "value" },
+    series: [
+      {
+        type: "bar",
+        data: topProducts.map((row) => row.total_sales),
+        itemStyle: { color: "#1e40af", borderRadius: [6, 6, 0, 0] },
+        barWidth: "45%",
+      },
+    ],
+  };
+
   const lineOption = {
     tooltip: { trigger: "axis" },
     grid: { left: "4%", right: "4%", bottom: "8%", containLabel: true },
@@ -157,19 +186,23 @@ function DashboardPage({ lang }) {
       <div className="kpi-grid">
         <article>
           <h3>{t.revenue}</h3>
-          <p>{totals.total_amount ?? 0}</p>
+          <p>{formatDh(totals.total_amount)}</p>
         </article>
         <article>
           <h3>{t.bestRegion}</h3>
           <p>{summary.best_region ?? "-"}</p>
         </article>
         <article>
-          <h3>{t.salesCount}</h3>
-          <p>{totals.sales_count ?? 0}</p>
+          <h3>{t.topProduct}</h3>
+          <p>{summary.top_product ?? "-"}</p>
         </article>
         <article>
           <h3>{t.unitsSold}</h3>
           <p>{totals.total_quantity ?? 0}</p>
+        </article>
+        <article>
+          <h3>{t.averageTicket}</h3>
+          <p>{formatDh(totals.average_ticket)}</p>
         </article>
       </div>
 
@@ -184,10 +217,16 @@ function DashboardPage({ lang }) {
         </section>
       </div>
 
-      <section className="chart-card chart-card-full">
-        <h2>{t.monthly}</h2>
-        <ReactECharts option={lineOption} style={{ height: 320 }} />
-      </section>
+      <div className="dashboard-charts">
+        <section className="chart-card">
+          <h2>{t.topProducts}</h2>
+          <ReactECharts option={productsOption} style={{ height: 320 }} />
+        </section>
+        <section className="chart-card">
+          <h2>{t.monthly}</h2>
+          <ReactECharts option={lineOption} style={{ height: 320 }} />
+        </section>
+      </div>
     </main>
   );
 }

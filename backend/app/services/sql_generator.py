@@ -2,7 +2,7 @@ from app.services.messages import detect_language
 from app.services.ollama import ask_mistral
 
 SCHEMA_DESCRIPTION = """
-Available tables / Tables disponibles :
+This is a SALES analytics database / Base d'analyse commerciale :
 - regions(id, name)
 - products(id, name, category, unit_price)
 - sales(id, sale_date, region_id, product_id, quantity, total_amount)
@@ -11,6 +11,10 @@ Available tables / Tables disponibles :
 Relations :
 - sales.region_id -> regions.id
 - sales.product_id -> products.id
+
+Business meaning:
+- total_amount = revenue / chiffre d'affaires (currency: DH)
+- quantity = units sold / quantités vendues
 """
 
 
@@ -19,7 +23,7 @@ def build_sql_prompt(question: str) -> str:
 
     if lang == "en":
         instructions = """
-You are a PostgreSQL SQL assistant.
+You are a PostgreSQL assistant for SALES analytics.
 Generate ONLY one valid SELECT query.
 Rules:
 - Do not explain.
@@ -27,13 +31,13 @@ Rules:
 - Use only the tables below.
 - Always select readable names (regions.name or products.name AS name), never only IDs.
 - If you create an alias with AS, use EXACTLY the same alias in ORDER BY and HAVING.
-- Prefer SUM(sales.total_amount) AS total_sales for revenue.
-- Prefer SUM(sales.quantity) AS total_quantity for quantity.
+- Prefer SUM(sales.total_amount) AS total_sales for revenue (DH).
+- Prefer SUM(sales.quantity) AS total_quantity for units sold.
 - Keep aliases simple: name, total_sales, total_quantity.
 """
     else:
         instructions = """
-Tu es un assistant SQL pour PostgreSQL.
+Tu es un assistant SQL PostgreSQL pour l'analyse COMMERCIALE des ventes.
 Génère UNIQUEMENT une requête SELECT valide.
 Règles :
 - N'explique rien.
@@ -41,8 +45,8 @@ Règles :
 - Utilise uniquement les tables ci-dessous.
 - Sélectionne toujours des noms lisibles (regions.name ou products.name AS name), jamais seulement des ID.
 - Si tu crées un alias avec AS, réutilise EXACTEMENT le même alias dans ORDER BY et HAVING.
-- Préfère SUM(sales.total_amount) AS total_sales pour le chiffre d'affaires.
-- Préfère SUM(sales.quantity) AS total_quantity pour la quantité.
+- Préfère SUM(sales.total_amount) AS total_sales pour le chiffre d'affaires (DH).
+- Préfère SUM(sales.quantity) AS total_quantity pour les quantités vendues.
 - Garde des alias simples : name, total_sales, total_quantity.
 """
 

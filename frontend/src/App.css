@@ -369,6 +369,38 @@ body {
   margin-bottom: 1.5rem;
 }
 
+.suggestions-panel {
+  margin-bottom: 1.25rem;
+}
+
+.suggestions-panel h2 {
+  margin: 0 0 0.7rem;
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.suggestions-list button {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.suggestions-list button:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
 .analysis-form textarea {
   width: 100%;
   resize: vertical;
