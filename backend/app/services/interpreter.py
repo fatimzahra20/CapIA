@@ -24,6 +24,7 @@ def extract_label(row: dict):
         "region",
         "category",
         "product",
+        "product_name",
         "produit",
         "month",
         "mois",
@@ -32,6 +33,12 @@ def extract_label(row: dict):
     for key in label_keys:
         if row.get(key) is not None:
             return str(row[key])
+
+    for key, value in row.items():
+        if key.lower().endswith("id"):
+            continue
+        if isinstance(value, str) and value.strip():
+            return value.strip()
 
     return None
 
@@ -69,6 +76,7 @@ def compute_kpis(data: list[dict]) -> dict:
         "total_quantity",
         "quantity",
         "qty",
+        "total_sold",
         "total_sales_per_region",
     ]
 

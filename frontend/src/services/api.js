@@ -1,14 +1,6 @@
 const API_URL = "http://127.0.0.1:8000";
 
-export async function analyzeQuestion(question) {
-  const response = await fetch(`${API_URL}/ai/analyze`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ question }),
-  });
-
+async function parseResponse(response) {
   const data = await response.json();
 
   if (!response.ok) {
@@ -21,4 +13,21 @@ export async function analyzeQuestion(question) {
   }
 
   return data;
+}
+
+export async function analyzeQuestion(question) {
+  const response = await fetch(`${API_URL}/ai/analyze`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ question }),
+  });
+
+  return parseResponse(response);
+}
+
+export async function fetchHistory() {
+  const response = await fetch(`${API_URL}/ai/history`);
+  return parseResponse(response);
 }

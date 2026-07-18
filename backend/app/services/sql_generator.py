@@ -20,16 +20,30 @@ def build_sql_prompt(question: str) -> str:
     if lang == "en":
         instructions = """
 You are a PostgreSQL SQL assistant.
-From the user question, generate ONLY a valid SELECT SQL query.
-Do not explain. Do not use markdown. Do not use ```sql.
-Use only these tables:
+Generate ONLY one valid SELECT query.
+Rules:
+- Do not explain.
+- Do not use markdown or ```sql.
+- Use only the tables below.
+- Always select readable names (regions.name or products.name AS name), never only IDs.
+- If you create an alias with AS, use EXACTLY the same alias in ORDER BY and HAVING.
+- Prefer SUM(sales.total_amount) AS total_sales for revenue.
+- Prefer SUM(sales.quantity) AS total_quantity for quantity.
+- Keep aliases simple: name, total_sales, total_quantity.
 """
     else:
         instructions = """
 Tu es un assistant SQL pour PostgreSQL.
-À partir de la question utilisateur, génère UNIQUEMENT une requête SQL SELECT valide.
-N'explique rien. Ne mets pas de markdown. Ne mets pas de ```sql.
-Utilise uniquement ces tables :
+Génère UNIQUEMENT une requête SELECT valide.
+Règles :
+- N'explique rien.
+- Pas de markdown ni de ```sql.
+- Utilise uniquement les tables ci-dessous.
+- Sélectionne toujours des noms lisibles (regions.name ou products.name AS name), jamais seulement des ID.
+- Si tu crées un alias avec AS, réutilise EXACTEMENT le même alias dans ORDER BY et HAVING.
+- Préfère SUM(sales.total_amount) AS total_sales pour le chiffre d'affaires.
+- Préfère SUM(sales.quantity) AS total_quantity pour la quantité.
+- Garde des alias simples : name, total_sales, total_quantity.
 """
 
     return f"""
@@ -42,12 +56,19 @@ SQL:
 """.strip()
 
 
-def generate_sql(question: str) -> str:
-    prompt = build_sql_prompt(question)
-    sql = ask_mistral(prompt)
+def clean_sql(sql: str) -> str:
     sql = sql.strip()
 
     if sql.startswith("```"):
         sql = sql.replace("```sql", "").replace("```", "").strip()
 
+    if ";" in sql:
+        sql = sql.split(";")[0].strip()
+
     return sql
+
+
+def generate_sql(question: str) -> str:
+    prompt = build_sql_prompt(question)
+    sql = ask_mistral(prompt)
+    return clean_sql(sql)

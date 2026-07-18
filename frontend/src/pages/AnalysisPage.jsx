@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { analyzeQuestion } from "../services/api";
+import { useEffect, useState } from "react";
+import { analyzeQuestion, fetchHistory } from "../services/api";
+import ResultsChart from "../components/ResultsChart";
 
 const texts = {
   fr: {
@@ -16,6 +17,8 @@ const texts = {
     total: "Montant total",
     quantity: "Quantité totale",
     top: "Meilleur élément",
+    history: "Historique des analyses",
+    emptyHistory: "Aucune analyse enregistrée pour le moment.",
   },
   en: {
     title: "CAP AI",
@@ -31,6 +34,8 @@ const texts = {
     total: "Total amount",
     quantity: "Total quantity",
     top: "Top item",
+    history: "Analysis history",
+    emptyHistory: "No analysis saved yet.",
   },
 };
 
@@ -40,8 +45,22 @@ function AnalysisPage({ onHome }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
+  const [history, setHistory] = useState([]);
 
   const t = texts[uiLang];
+
+  async function loadHistory() {
+    try {
+      const data = await fetchHistory();
+      setHistory(data.history || []);
+    } catch {
+      setHistory([]);
+    }
+  }
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -55,6 +74,7 @@ function AnalysisPage({ onHome }) {
       if (data.language === "fr" || data.language === "en") {
         setUiLang(data.language);
       }
+      await loadHistory();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -75,8 +95,12 @@ function AnalysisPage({ onHome }) {
               {t.home}
             </button>
           )}
-          <button type="button" onClick={() => setUiLang("fr")}>FR</button>
-          <button type="button" onClick={() => setUiLang("en")}>EN</button>
+          <button type="button" onClick={() => setUiLang("fr")}>
+            FR
+          </button>
+          <button type="button" onClick={() => setUiLang("en")}>
+            EN
+          </button>
         </div>
       </header>
 
@@ -108,26 +132,44 @@ function AnalysisPage({ onHome }) {
             </article>
             <article>
               <h3>{t.total}</h3>
-              <p>{result.kpis?.total_amount ?? 0}</p>
+              <p>{result.kpis?.total_amount ?? "-"}</p>
             </article>
             <article>
               <h3>{t.quantity}</h3>
-              <p>{result.kpis?.total_quantity ?? 0}</p>
+              <p>{result.kpis?.total_quantity ?? "-"}</p>
             </article>
             <article>
               <h3>{t.top}</h3>
               <p>
-                {result.kpis?.top_item
+                {result.kpis?.top_item?.label
                   ? `${result.kpis.top_item.label} (${result.kpis.top_item.value})`
                   : "-"}
               </p>
             </article>
           </div>
 
+          <ResultsChart data={result.data} language={result.language} />
+
           <h2>{t.interpretation}</h2>
           <p>{result.interpretation}</p>
         </section>
       )}
+
+      <section className="history-panel">
+        <h2>{t.history}</h2>
+        {history.length === 0 ? (
+          <p className="history-empty">{t.emptyHistory}</p>
+        ) : (
+          <ul className="history-list">
+            {history.map((item) => (
+              <li key={item.id}>
+                <strong>{item.question}</strong>
+                <span>{item.interpretation}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   );
 }
