@@ -4,7 +4,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.routers import ai, regions, sales
+from app.routers import ai, dashboard, regions, sales
 from app.services.messages import bilingual
 
 app = FastAPI(title="CAP AI")
@@ -20,6 +20,7 @@ app.add_middleware(
 app.include_router(regions.router)
 app.include_router(sales.router)
 app.include_router(ai.router)
+app.include_router(dashboard.router)
 
 
 @app.get("/")

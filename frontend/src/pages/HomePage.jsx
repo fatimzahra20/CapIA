@@ -1,124 +1,153 @@
-import { useState } from "react";
-
 const texts = {
   fr: {
-    tagline: "Analyse de données conversationnelle",
-    title: "Vos données répondent à vos questions",
+    badge: "Analyse intelligente de données",
+    titleStart: "Posez vos questions.",
+    titleHighlight: "Obtenez des réponses",
+    titleEnd: "claires.",
     subtitle:
-      "Posez une question en français ou en anglais. CAP AI comprend votre demande, interroge votre base de données et vous présente les KPI avec une interprétation claire.",
-    cta: "Commencer l'analyse",
-    featuresTitle: "Comment ça marche ?",
+      "CAP AI comprend vos données, génère des analyses, des KPI, des graphiques et des interprétations en quelques secondes. Simple, rapide et intelligent.",
+    ctaPrimary: "Commencer une analyse",
+    ctaSecondary: "Voir le dashboard",
+    trust: "Sécurisé • Rapide • Intelligent",
     features: [
       {
-        title: "1. Posez votre question",
+        icon: "💬",
+        title: "Posez en langage naturel",
         description:
-          "Écrivez simplement « Affiche les ventes par région », sans SQL ni outil technique.",
+          "Écrivez vos questions en français ou en anglais, comme à un expert.",
       },
       {
-        title: "2. L'IA analyse",
+        icon: "📊",
+        title: "Analysez instantanément",
         description:
-          "Mistral comprend la demande et interroge la base de données en toute sécurité.",
+          "CAP AI génère les requêtes, analyse les données et calcule les KPI.",
       },
       {
-        title: "3. Résultats clairs",
+        icon: "🛡️",
+        title: "Des résultats exploitables",
         description:
-          "KPI, chiffres clés et interprétation en langage naturel, dans votre langue.",
+          "Visualisez vos données avec des graphiques et des interprétations claires.",
       },
     ],
-    examplesTitle: "Exemples de questions",
-    examples: [
-      "Affiche les ventes par région",
-      "Quel est le produit le plus vendu ?",
-      "Show sales by category",
-    ],
+    preview: {
+      question: "Montre le chiffre d'affaires par région ce mois-ci",
+      kpis: [
+        { label: "Chiffre d'affaires", value: "12 450 DH" },
+        { label: "Meilleure région", value: "Nord" },
+        { label: "Ventes", value: "320" },
+        { label: "Produits vendus", value: "2 150" },
+      ],
+    },
   },
   en: {
-    tagline: "Conversational data analytics",
-    title: "Your data answers your questions",
+    badge: "Smart data analytics",
+    titleStart: "Ask your questions.",
+    titleHighlight: "Get clear",
+    titleEnd: "answers.",
     subtitle:
-      "Ask a question in French or English. CAP AI understands your request, queries your database and presents KPIs with a clear interpretation.",
-    cta: "Start analyzing",
-    featuresTitle: "How does it work?",
+      "CAP AI understands your data and generates analyses, KPIs, charts and interpretations in seconds. Simple, fast and smart.",
+    ctaPrimary: "Start an analysis",
+    ctaSecondary: "View dashboard",
+    trust: "Secure • Fast • Smart",
     features: [
       {
-        title: "1. Ask your question",
+        icon: "💬",
+        title: "Ask in natural language",
         description:
-          "Simply write \"Show sales by region\", no SQL or technical tools needed.",
+          "Write your questions in French or English, like talking to an expert.",
       },
       {
-        title: "2. AI analyzes",
+        icon: "📊",
+        title: "Analyze instantly",
         description:
-          "Mistral understands the request and safely queries the database.",
+          "CAP AI generates queries, analyzes data and computes KPIs.",
       },
       {
-        title: "3. Clear results",
+        icon: "🛡️",
+        title: "Actionable results",
         description:
-          "KPIs, key figures and a natural-language interpretation, in your language.",
+          "Visualize your data with clear charts and interpretations.",
       },
     ],
-    examplesTitle: "Example questions",
-    examples: [
-      "Show sales by region",
-      "What is the best-selling product?",
-      "Affiche les ventes par catégorie",
-    ],
+    preview: {
+      question: "Show revenue by region this month",
+      kpis: [
+        { label: "Revenue", value: "12,450 DH" },
+        { label: "Best region", value: "Nord" },
+        { label: "Sales", value: "320" },
+        { label: "Units sold", value: "2,150" },
+      ],
+    },
   },
 };
 
-function HomePage({ onStart }) {
-  const [lang, setLang] = useState("fr");
+function HomePage({ lang, onStart, onDashboard }) {
   const t = texts[lang];
 
   return (
     <main className="home-page">
-      <header className="home-header">
-        <span className="home-logo">CAP AI</span>
-        <div className="lang-switch">
-          <button
-            type="button"
-            className={lang === "fr" ? "active" : ""}
-            onClick={() => setLang("fr")}
-          >
-            FR
-          </button>
-          <button
-            type="button"
-            className={lang === "en" ? "active" : ""}
-            onClick={() => setLang("en")}
-          >
-            EN
-          </button>
-        </div>
-      </header>
-
       <section className="home-hero">
-        <p className="home-tagline">{t.tagline}</p>
-        <h1>{t.title}</h1>
-        <p className="home-subtitle">{t.subtitle}</p>
-        <button type="button" className="home-cta" onClick={onStart}>
-          {t.cta}
-        </button>
+        <div className="home-hero-text">
+          <p className="home-badge">{t.badge}</p>
+          <h1>
+            {t.titleStart}
+            <br />
+            <span className="highlight">{t.titleHighlight}</span> {t.titleEnd}
+          </h1>
+          <p className="home-subtitle">{t.subtitle}</p>
+          <div className="home-cta-row">
+            <button type="button" className="btn-primary" onClick={onStart}>
+              ✦ {t.ctaPrimary}
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={onDashboard}
+            >
+              ▶ {t.ctaSecondary}
+            </button>
+          </div>
+          <p className="home-trust">🛡 {t.trust}</p>
+        </div>
+
+        <div className="home-preview">
+          <div className="home-preview-dots">
+            <span className="dot red" />
+            <span className="dot yellow" />
+            <span className="dot green" />
+          </div>
+          <div className="home-preview-question">
+            <span>💬</span>
+            <p>{t.preview.question}</p>
+          </div>
+          <div className="home-preview-kpis">
+            {t.preview.kpis.map((kpi) => (
+              <article key={kpi.label}>
+                <h4>{kpi.label}</h4>
+                <p>{kpi.value}</p>
+              </article>
+            ))}
+          </div>
+          <div className="home-preview-bars">
+            {[80, 45, 30, 22].map((height, index) => (
+              <div
+                key={index}
+                className="preview-bar"
+                style={{ height: `${height}%` }}
+              />
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className="home-features">
-        <h2>{t.featuresTitle}</h2>
-        <div className="home-features-grid">
-          {t.features.map((feature) => (
-            <article key={feature.title}>
-              <h3>{feature.title}</h3>
-              <p>{feature.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="home-examples">
-        <h2>{t.examplesTitle}</h2>
-        <ul>
-          {t.examples.map((example) => (
-            <li key={example}>{example}</li>
-          ))}
-        </ul>
+        {t.features.map((feature) => (
+          <article key={feature.title}>
+            <span className="feature-icon">{feature.icon}</span>
+            <h3>{feature.title}</h3>
+            <p>{feature.description}</p>
+          </article>
+        ))}
       </section>
     </main>
   );

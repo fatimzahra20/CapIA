@@ -31,3 +31,8 @@ export async function fetchHistory() {
   const response = await fetch(`${API_URL}/ai/history`);
   return parseResponse(response);
 }
+
+export async function fetchDashboard() {
+  const response = await fetch(`${API_URL}/dashboard/summary`);
+  return parseResponse(response);
+}

@@ -4,14 +4,12 @@ import ResultsChart from "../components/ResultsChart";
 
 const texts = {
   fr: {
-    title: "CAP AI",
+    title: "Analyser",
     subtitle: "Posez une question sur vos données en français ou en anglais.",
     placeholder: "Ex. Affiche les ventes par région",
     button: "Analyser",
     loading: "Analyse en cours…",
-    home: "Accueil",
     language: "Langue détectée",
-    kpis: "KPI",
     interpretation: "Interprétation",
     rows: "Lignes",
     total: "Montant total",
@@ -21,14 +19,12 @@ const texts = {
     emptyHistory: "Aucune analyse enregistrée pour le moment.",
   },
   en: {
-    title: "CAP AI",
+    title: "Analyze",
     subtitle: "Ask a question about your data in French or English.",
     placeholder: "e.g. Show sales by region",
     button: "Analyze",
     loading: "Analyzing…",
-    home: "Home",
     language: "Detected language",
-    kpis: "KPIs",
     interpretation: "Interpretation",
     rows: "Rows",
     total: "Total amount",
@@ -39,15 +35,14 @@ const texts = {
   },
 };
 
-function AnalysisPage({ onHome }) {
-  const [uiLang, setUiLang] = useState("fr");
+function AnalysisPage({ lang, onLangChange }) {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
   const [history, setHistory] = useState([]);
 
-  const t = texts[uiLang];
+  const t = texts[lang];
 
   async function loadHistory() {
     try {
@@ -59,7 +54,23 @@ function AnalysisPage({ onHome }) {
   }
 
   useEffect(() => {
-    loadHistory();
+    let active = true;
+
+    fetchHistory()
+      .then((data) => {
+        if (active) {
+          setHistory(data.history || []);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setHistory([]);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   async function handleSubmit(event) {
@@ -72,7 +83,7 @@ function AnalysisPage({ onHome }) {
       const data = await analyzeQuestion(question);
       setResult(data);
       if (data.language === "fr" || data.language === "en") {
-        setUiLang(data.language);
+        onLangChange(data.language);
       }
       await loadHistory();
     } catch (err) {
@@ -85,23 +96,8 @@ function AnalysisPage({ onHome }) {
   return (
     <main className="analysis-page">
       <header className="analysis-header">
-        <div>
-          <h1>{t.title}</h1>
-          <p>{t.subtitle}</p>
-        </div>
-        <div className="lang-switch">
-          {onHome && (
-            <button type="button" onClick={onHome}>
-              {t.home}
-            </button>
-          )}
-          <button type="button" onClick={() => setUiLang("fr")}>
-            FR
-          </button>
-          <button type="button" onClick={() => setUiLang("en")}>
-            EN
-          </button>
-        </div>
+        <h1>{t.title}</h1>
+        <p>{t.subtitle}</p>
       </header>
 
       <form className="analysis-form" onSubmit={handleSubmit}>
