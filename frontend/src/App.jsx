@@ -3,6 +3,8 @@ import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import AnalysisPage from "./pages/AnalysisPage";
 import DashboardPage from "./pages/DashboardPage";
+import HistoryPage from "./pages/HistoryPage";
+import AboutPage from "./pages/AboutPage";
 import "./App.css";
 
 function App() {
@@ -28,6 +30,10 @@ function App() {
         <AnalysisPage lang={lang} onLangChange={setLang} />
       )}
       {page === "dashboard" && <DashboardPage lang={lang} />}
+      {page === "history" && (
+        <HistoryPage lang={lang} onAnalyze={() => setPage("analysis")} />
+      )}
+      {page === "about" && <AboutPage lang={lang} />}
     </>
   );
 }

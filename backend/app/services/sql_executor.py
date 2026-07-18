@@ -1,25 +1,49 @@
+import re
+
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.services.messages import bilingual
 
+FORBIDDEN_KEYWORDS = [
+    "insert",
+    "update",
+    "delete",
+    "drop",
+    "alter",
+    "truncate",
+    "create",
+    "grant",
+    "revoke",
+    "replace",
+    "merge",
+    "call",
+    "execute",
+    "copy",
+    "vacuum",
+    "comment",
+]
+
 
 def is_safe_select(sql: str) -> bool:
     cleaned = " ".join(sql.strip().lower().split())
-    forbidden = ["insert", "update", "delete", "drop", "alter", "truncate", "create", ";--"]
 
     if not cleaned.startswith("select"):
         return False
 
-    for word in forbidden:
-        if word in cleaned:
+    # Block multiple statements
+    if ";" in cleaned.rstrip(";"):
+        return False
+
+    for word in FORBIDDEN_KEYWORDS:
+        if re.search(rf"\b{word}\b", cleaned):
             return False
 
     return True
 
 
-def execute_select(db: Session, sql: str):
+def execute_select(db: Session, sql: str, limit: int = 200):
     if not is_safe_select(sql):
         raise HTTPException(
             status_code=400,
@@ -27,8 +51,10 @@ def execute_select(db: Session, sql: str):
         )
 
     try:
-        rows = db.execute(text(sql)).mappings().all()
-        return [dict(row) for row in rows]
+        result = db.execute(text(sql))
+        rows = result.mappings().all()
+        limited = [dict(row) for row in rows[:limit]]
+        return limited
     except Exception as error:
         detail = bilingual("sql_error")
         detail["fr"] = f"{detail['fr']}: {error}"

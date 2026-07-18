@@ -32,8 +32,8 @@ const texts = {
     preview: {
       question: "Affiche le chiffre d'affaires par région",
       kpis: [
-        { label: "CA total", value: "6 595 DH" },
-        { label: "Meilleure région", value: "Nord" },
+        { label: "CA total", value: "65 950 DH" },
+        { label: "Meilleure région", value: "Casablanca" },
         { label: "Top produit", value: "Ordinateur" },
         { label: "Unités vendues", value: "39" },
       ],
@@ -72,8 +72,8 @@ const texts = {
     preview: {
       question: "Show revenue by region",
       kpis: [
-        { label: "Total revenue", value: "6,595 DH" },
-        { label: "Best region", value: "Nord" },
+        { label: "Total revenue", value: "65,950 DH" },
+        { label: "Best region", value: "Casablanca" },
         { label: "Top product", value: "Laptop" },
         { label: "Units sold", value: "39" },
       ],

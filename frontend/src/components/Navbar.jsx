@@ -3,12 +3,16 @@ const texts = {
     home: "Accueil",
     analysis: "Analyser",
     dashboard: "Tableau de bord",
+    history: "Historique",
+    about: "À propos",
     cta: "Analyser",
   },
   en: {
     home: "Home",
     analysis: "Analyze",
     dashboard: "Dashboard",
+    history: "History",
+    about: "About",
     cta: "Analyze",
   },
 };
@@ -20,6 +24,8 @@ function Navbar({ page, onNavigate, lang, onLangChange }) {
     { id: "home", label: t.home },
     { id: "analysis", label: t.analysis },
     { id: "dashboard", label: t.dashboard },
+    { id: "history", label: t.history },
+    { id: "about", label: t.about },
   ];
 
   return (
