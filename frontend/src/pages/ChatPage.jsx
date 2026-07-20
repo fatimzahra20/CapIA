@@ -4,33 +4,21 @@ import ResultsChart from "../components/ResultsChart";
 
 const texts = {
   fr: {
-    emptyTitle: "Comment puis-je vous aider ?",
-    placeholder: "Posez une question sur vos ventes…",
-    send: "Envoyer",
+    emptyTitle: "Toujours prêt à répondre.",
+    placeholder: "Poser une question",
     thinking: "Analyse en cours…",
     newChat: "Nouveau chat",
     dashboard: "Tableau de bord",
-    suggestions: [
-      "Affiche les ventes par région",
-      "Quel est le produit le plus vendu ?",
-      "Montre le chiffre d'affaires par catégorie",
-    ],
     revenue: "CA",
     quantity: "Unités",
     top: "Top",
   },
   en: {
-    emptyTitle: "How can I help you?",
-    placeholder: "Ask a question about your sales…",
-    send: "Send",
+    emptyTitle: "Always ready to answer.",
+    placeholder: "Ask a question",
     thinking: "Analyzing…",
     newChat: "New chat",
     dashboard: "Dashboard",
-    suggestions: [
-      "Show sales by region",
-      "What is the best-selling product?",
-      "Show revenue by category",
-    ],
     revenue: "Revenue",
     quantity: "Units",
     top: "Top",
@@ -132,17 +120,6 @@ function ChatPage({ lang, onLangChange, onDashboard }) {
         {isEmpty ? (
           <div className="chat-empty">
             <h1>{t.emptyTitle}</h1>
-            <div className="chat-suggestions">
-              {t.suggestions.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => sendQuestion(item)}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
           </div>
         ) : (
           <div className="chat-messages">
@@ -176,14 +153,15 @@ function ChatPage({ lang, onLangChange, onDashboard }) {
                     </div>
                   )}
 
-                  {message.role === "assistant" && message.chartData?.length > 0 && (
-                    <div className="chat-chart">
-                      <ResultsChart
-                        data={message.chartData}
-                        language={message.language || lang}
-                      />
-                    </div>
-                  )}
+                  {message.role === "assistant" &&
+                    message.chartData?.length > 0 && (
+                      <div className="chat-chart">
+                        <ResultsChart
+                          data={message.chartData}
+                          language={message.language || lang}
+                        />
+                      </div>
+                    )}
                 </div>
               </div>
             ))}

@@ -73,9 +73,18 @@ function ResultsChart({ data, language = "fr" }) {
     language === "en" ? "Data visualization" : "Visualisation des données";
 
   const option = {
+    backgroundColor: "transparent",
+    textStyle: {
+      color: "#ececec",
+    },
     title: {
       text: title,
       left: "center",
+      textStyle: {
+        color: "#ececec",
+        fontSize: 14,
+        fontWeight: 500,
+      },
     },
     tooltip: {
       trigger: "axis",
@@ -91,10 +100,20 @@ function ResultsChart({ data, language = "fr" }) {
       data: data.map((row) => String(row[labelKey])),
       axisLabel: {
         rotate: data.length > 6 ? 30 : 0,
+        color: "#b4b4b4",
+      },
+      axisLine: {
+        lineStyle: { color: "#3a3a3a" },
       },
     },
     yAxis: {
       type: "value",
+      axisLabel: {
+        color: "#b4b4b4",
+      },
+      splitLine: {
+        lineStyle: { color: "#333" },
+      },
     },
     series: [
       {

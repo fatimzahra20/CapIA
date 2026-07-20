@@ -1,12 +1,13 @@
 :root {
-  --bg: #f7f7f8;
-  --panel: #ffffff;
-  --ink: #0d0d0d;
-  --muted: #6b6b6b;
-  --border: #e5e5e5;
+  --bg: #212121;
+  --panel: #2f2f2f;
+  --ink: #ececec;
+  --muted: #b4b4b4;
+  --border: #3a3a3a;
   --accent: #10a37f;
-  --user-bg: #f4f4f4;
-  --error: #c62828;
+  --user-bg: #303030;
+  --error: #f87171;
+  --topbar: #171717;
 }
 
 * {
@@ -16,7 +17,6 @@
 body {
   margin: 0;
   font-family:
-    "Söhne",
     "Segoe UI",
     system-ui,
     -apple-system,
@@ -30,12 +30,11 @@ textarea {
   font: inherit;
 }
 
-/* ---------- Chat layout (ChatGPT-like) ---------- */
-
 .chat-layout {
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr auto;
+  background: var(--bg);
 }
 
 .chat-topbar {
@@ -43,12 +42,12 @@ textarea {
   justify-content: space-between;
   align-items: center;
   padding: 0.85rem 1.25rem;
-  background: var(--panel);
-  border-bottom: 1px solid var(--border);
+  background: var(--topbar);
+  border-bottom: 1px solid #2a2a2a;
 }
 
 .chat-brand {
-  font-weight: 700;
+  font-weight: 600;
   font-size: 1.05rem;
   border: none;
   background: none;
@@ -67,11 +66,15 @@ textarea {
 
 .chat-top-actions > button {
   border: 1px solid var(--border);
-  background: var(--panel);
+  background: transparent;
   color: var(--ink);
   border-radius: 999px;
   padding: 0.4rem 0.85rem;
   cursor: pointer;
+}
+
+.chat-top-actions > button:hover {
+  background: #2a2a2a;
 }
 
 .chat-lang {
@@ -90,8 +93,8 @@ textarea {
 }
 
 .chat-lang button.active {
-  background: #111;
-  color: #fff;
+  background: #fff;
+  color: #111;
 }
 
 .chat-main {
@@ -101,35 +104,15 @@ textarea {
 
 .chat-empty {
   max-width: 720px;
-  margin: 12vh auto 0;
+  margin: 18vh auto 0;
   text-align: center;
 }
 
 .chat-empty h1 {
-  margin: 0 0 1.5rem;
-  font-size: 2rem;
-  font-weight: 600;
-}
-
-.chat-suggestions {
-  display: grid;
-  gap: 0.65rem;
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-.chat-suggestions button {
-  border: 1px solid var(--border);
-  background: var(--panel);
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 500;
   color: var(--ink);
-  border-radius: 0.9rem;
-  padding: 0.9rem 1rem;
-  text-align: left;
-  cursor: pointer;
-}
-
-.chat-suggestions button:hover {
-  background: #efefef;
 }
 
 .chat-messages {
@@ -155,15 +138,14 @@ textarea {
 .chat-bubble {
   max-width: min(100%, 640px);
   padding: 0.9rem 1rem;
-  border-radius: 1.1rem;
+  border-radius: 1.2rem;
   line-height: 1.55;
   background: var(--panel);
-  border: 1px solid var(--border);
+  color: var(--ink);
 }
 
 .chat-row.user .chat-bubble {
   background: var(--user-bg);
-  border-color: transparent;
 }
 
 .chat-bubble p {
@@ -188,8 +170,8 @@ textarea {
 }
 
 .chat-kpis span {
-  background: #f0faf6;
-  color: #0f6b4c;
+  background: rgba(16, 163, 127, 0.15);
+  color: #5eead4;
   border-radius: 999px;
   padding: 0.3rem 0.7rem;
   font-size: 0.85rem;
@@ -200,7 +182,7 @@ textarea {
   margin-top: 0.9rem;
   border-radius: 0.8rem;
   overflow: hidden;
-  background: #fafafa;
+  background: #1a1a1a;
 }
 
 .chat-chart .chart-panel {
@@ -211,8 +193,8 @@ textarea {
 }
 
 .chat-input-bar {
-  padding: 0.75rem 1rem 1.25rem;
-  background: linear-gradient(180deg, transparent, var(--bg) 30%);
+  padding: 0.75rem 1rem 1.4rem;
+  background: var(--bg);
 }
 
 .chat-input-wrap {
@@ -222,10 +204,9 @@ textarea {
   gap: 0.55rem;
   align-items: flex-end;
   background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 1.4rem;
-  padding: 0.55rem 0.55rem 0.55rem 1rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+  border: 1px solid transparent;
+  border-radius: 1.6rem;
+  padding: 0.65rem 0.65rem 0.65rem 1.1rem;
 }
 
 .chat-input-wrap textarea {
@@ -240,23 +221,25 @@ textarea {
   padding: 0.35rem 0;
 }
 
+.chat-input-wrap textarea::placeholder {
+  color: #8e8e8e;
+}
+
 .chat-input-wrap button {
   width: 36px;
   height: 36px;
   border: none;
   border-radius: 50%;
-  background: #111;
-  color: #fff;
+  background: #fff;
+  color: #111;
   font-size: 1.1rem;
   cursor: pointer;
 }
 
 .chat-input-wrap button:disabled {
-  opacity: 0.35;
+  opacity: 0.3;
   cursor: not-allowed;
 }
-
-/* ---------- Simple dashboard shell ---------- */
 
 .simple-shell {
   min-height: 100vh;
@@ -267,6 +250,7 @@ textarea {
   max-width: 960px;
   margin: 0 auto;
   padding: 1.25rem 1rem 2.5rem;
+  color: var(--ink);
 }
 
 .dashboard-header h1 {
@@ -313,6 +297,7 @@ textarea {
   margin: 0;
   font-size: 1.2rem;
   font-weight: 700;
+  color: var(--ink);
 }
 
 .dashboard-charts {
@@ -339,4 +324,5 @@ textarea {
 .chart-card h2 {
   margin: 0 0 0.4rem;
   font-size: 0.95rem;
+  color: var(--ink);
 }
