@@ -1,82 +1,160 @@
-import { useState } from "react";
-import "./fonts";
-import Sidebar from "./components/Sidebar";
-import HomePage from "./pages/HomePage";
-import ChatResult from "./pages/ChatResult";
-import HistoryPage from "./pages/HistoryPage";
-import DatabasePage from "./pages/DatabasePage";
-import SettingsPage from "./pages/SettingsPage";
-import { analyzeQuestion } from "./services/api";
-import "./App.css";
+import { useEffect, useState } from "react";
+import MainLayout from "./layouts/MainLayout";
+import Login from "./pages/Login";
+import Home from "./pages/Home";
+import History from "./pages/History";
+import Database from "./pages/Database";
+import Settings from "./pages/Settings";
+import {
+  analyzeQuestion,
+  fetchAnalysis,
+  fetchMe,
+} from "./services/api";
+import {
+  clearSession,
+  getStoredUser,
+  getToken,
+  isAuthenticated,
+} from "./services/auth";
 
 function App() {
+  const [authed, setAuthed] = useState(isAuthenticated());
+  const [user, setUser] = useState(getStoredUser());
   const [page, setPage] = useState("home");
   const [lang, setLang] = useState("fr");
-  const [question, setQuestion] = useState("");
-  const [result, setResult] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  async function handleAnalyze(text) {
-    setQuestion(text);
-    setResult(null);
-    setError("");
+  useEffect(() => {
+    if (!getToken()) {
+      setAuthed(false);
+      return;
+    }
+    fetchMe()
+      .then((me) => {
+        setUser(me);
+        setAuthed(true);
+      })
+      .catch(() => {
+        clearSession();
+        setAuthed(false);
+        setUser(null);
+      });
+  }, []);
+
+  function handleLogout() {
+    clearSession();
+    setAuthed(false);
+    setUser(null);
+    setMessages([]);
+    setSelectedId(null);
+    setPage("home");
+  }
+
+  function handleNavigate(next) {
+    if (next === "home") {
+      setMessages([]);
+      setSelectedId(null);
+    }
+    setPage(next);
+  }
+
+  async function handleAsk(question) {
+    setPage("home");
+    setSelectedId(null);
+    setMessages((prev) => [...prev, { role: "user", content: question }]);
     setLoading(true);
-    setPage("result");
 
     try {
-      const data = await analyzeQuestion(text);
-      if (data.language === "fr" || data.language === "en") {
-        setLang(data.language);
+      const result = await analyzeQuestion(question);
+      if (result.language === "fr" || result.language === "en") {
+        setLang(result.language);
       }
-      setResult(data);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", result },
+      ]);
+      if (result.id) {
+        setSelectedId(result.id);
+      }
+      setRefreshKey((value) => value + 1);
     } catch (err) {
-      setError(err.message);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", error: err.message },
+      ]);
     } finally {
       setLoading(false);
     }
   }
 
-  function handleNewAnalysis() {
+  async function handleSelectAnalysis(id) {
     setPage("home");
-    setQuestion("");
-    setResult(null);
-    setError("");
-    setLoading(false);
+    setSelectedId(id);
+    setLoading(true);
+    try {
+      const item = await fetchAnalysis(id);
+      const result = item.result_json || {
+        question: item.question,
+        interpretation: item.interpretation,
+        data: [],
+        kpis: {},
+        language: lang,
+      };
+      setMessages([
+        { role: "user", content: item.question },
+        { role: "assistant", result },
+      ]);
+    } catch (err) {
+      setMessages([
+        { role: "assistant", error: err.message },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function handleNavigate(next) {
-    if (next === "home") {
-      handleNewAnalysis();
-      return;
-    }
-    setPage(next);
+  if (!authed) {
+    return <Login onSuccess={(nextUser) => {
+      setUser(nextUser);
+      setAuthed(true);
+    }} />;
   }
 
   return (
-    <div className="app-shell">
-      <Sidebar page={page} onNavigate={handleNavigate} lang={lang} />
-      <div className="app-main">
-        {page === "home" && (
-          <HomePage lang={lang} onAnalyze={handleAnalyze} loading={loading} />
-        )}
-        {page === "result" && (
-          <ChatResult
-            lang={lang}
-            loading={loading}
-            error={error}
-            result={result}
-            question={question}
-            onReset={handleNewAnalysis}
-          />
-        )}
-        {page === "history" && <HistoryPage lang={lang} />}
-        {page === "database" && <DatabasePage lang={lang} />}
-        {page === "settings" && (
-          <SettingsPage lang={lang} onLangChange={setLang} />
-        )}
-      </div>
-    </div>
+    <MainLayout
+      page={page}
+      selectedId={selectedId}
+      onNavigate={handleNavigate}
+      onSelectAnalysis={handleSelectAnalysis}
+      onLogout={handleLogout}
+      user={user}
+      lang={lang}
+      refreshKey={refreshKey}
+    >
+      {page === "home" && (
+        <Home
+          lang={lang}
+          messages={messages}
+          loading={loading}
+          onAsk={handleAsk}
+        />
+      )}
+      {page === "history" && (
+        <History lang={lang} onSelect={handleSelectAnalysis} />
+      )}
+      {page === "database" && <Database lang={lang} />}
+      {page === "settings" && (
+        <Settings
+          lang={lang}
+          onLangChange={setLang}
+          user={user}
+          onLogout={handleLogout}
+        />
+      )}
+    </MainLayout>
   );
 }
 

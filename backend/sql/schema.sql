@@ -19,15 +19,27 @@ CREATE TABLE IF NOT EXISTS sales (
     total_amount NUMERIC(14, 2) NOT NULL CHECK (total_amount >= 0)
 );
 
+CREATE TABLE IF NOT EXISTS users (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(150) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS analysis_history (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id BIGINT REFERENCES users(id),
     question TEXT NOT NULL,
     generated_sql TEXT,
     chart_type VARCHAR(50),
     interpretation TEXT,
+    result_json JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_sales_date ON sales(sale_date);
 CREATE INDEX IF NOT EXISTS idx_sales_region ON sales(region_id);
 CREATE INDEX IF NOT EXISTS idx_sales_product ON sales(product_id);
+CREATE INDEX IF NOT EXISTS idx_analysis_history_user
+    ON analysis_history(user_id, created_at DESC);

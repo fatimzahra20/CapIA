@@ -3,7 +3,13 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.services.history import detect_chart_type, list_history, save_analysis
+from app.services.auth import get_current_user
+from app.services.history import (
+    detect_chart_type,
+    get_analysis,
+    list_history,
+    save_analysis,
+)
 from app.services.interpreter import compute_kpis, interpret_results, to_jsonable
 from app.services.messages import bilingual, detect_language
 from app.services.ollama import ask_mistral
@@ -18,7 +24,10 @@ class QuestionRequest(BaseModel):
 
 
 @router.post("/ask")
-def ask_ai(payload: QuestionRequest):
+def ask_ai(
+    payload: QuestionRequest,
+    current_user: dict = Depends(get_current_user),
+):
     if not payload.question.strip():
         raise HTTPException(status_code=400, detail=bilingual("empty_question"))
 
@@ -36,11 +45,15 @@ def ask_ai(payload: QuestionRequest):
         "question": payload.question,
         "language": lang,
         "answer": answer,
+        "user_id": current_user["id"],
     }
 
 
 @router.post("/generate-sql")
-def generate_sql_from_question(payload: QuestionRequest):
+def generate_sql_from_question(
+    payload: QuestionRequest,
+    current_user: dict = Depends(get_current_user),
+):
     if not payload.question.strip():
         raise HTTPException(status_code=400, detail=bilingual("empty_question"))
 
@@ -62,7 +75,11 @@ def generate_sql_from_question(payload: QuestionRequest):
 
 
 @router.post("/analyze")
-def analyze_question(payload: QuestionRequest, db: Session = Depends(get_db)):
+def analyze_question(
+    payload: QuestionRequest,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
     if not payload.question.strip():
         raise HTTPException(status_code=400, detail=bilingual("empty_question"))
 
@@ -99,19 +116,7 @@ def analyze_question(payload: QuestionRequest, db: Session = Depends(get_db)):
 
     chart_type = detect_chart_type(safe_data)
 
-    try:
-        save_analysis(
-            db=db,
-            question=payload.question,
-            sql=sql,
-            chart_type=chart_type,
-            interpretation=interpretation,
-        )
-    except Exception:
-        # History must not break the main analysis response
-        db.rollback()
-
-    return {
+    response = {
         "question": payload.question,
         "language": lang,
         "sql": sql,
@@ -121,7 +126,44 @@ def analyze_question(payload: QuestionRequest, db: Session = Depends(get_db)):
         "interpretation": interpretation,
     }
 
+    try:
+        analysis_id = save_analysis(
+            db=db,
+            user_id=current_user["id"],
+            question=payload.question,
+            sql=sql,
+            chart_type=chart_type,
+            interpretation=interpretation,
+            result_payload=response,
+        )
+        response["id"] = analysis_id
+    except Exception:
+        db.rollback()
+
+    return response
+
 
 @router.get("/history")
-def get_history(db: Session = Depends(get_db)):
-    return {"history": list_history(db)}
+def get_history(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    return {"history": list_history(db, current_user["id"])}
+
+
+@router.get("/history/{analysis_id}")
+def get_history_item(
+    analysis_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    item = get_analysis(db, current_user["id"], analysis_id)
+    if not item:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "fr": "Analyse introuvable",
+                "en": "Analysis not found",
+            },
+        )
+    return item
