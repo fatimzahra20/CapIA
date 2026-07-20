@@ -103,16 +103,16 @@ function ResultsChart({ data, language = "fr" }) {
         data: data.map((row) => row[valueKey]),
         smooth: chartType === "line",
         itemStyle: {
-          color: "#2563eb",
+          color: "#10a37f",
           borderRadius: chartType === "bar" ? [6, 6, 0, 0] : undefined,
         },
         lineStyle: {
-          color: "#2563eb",
+          color: "#10a37f",
         },
         areaStyle:
           chartType === "line"
             ? {
-                color: "rgba(37, 99, 235, 0.12)",
+                color: "rgba(16, 163, 127, 0.12)",
               }
             : undefined,
       },
