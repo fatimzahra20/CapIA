@@ -75,14 +75,14 @@ function ResultsChart({ data, language = "fr" }) {
   const option = {
     backgroundColor: "transparent",
     textStyle: {
-      color: "#0d0d0d",
+      color: "#ececec",
     },
     title: {
       text: title,
       left: "center",
       textStyle: {
-        color: "#0d0d0d",
-        fontSize: 14,
+        color: "#ececec",
+        fontSize: 13,
         fontWeight: 500,
       },
     },
@@ -100,19 +100,19 @@ function ResultsChart({ data, language = "fr" }) {
       data: data.map((row) => String(row[labelKey])),
       axisLabel: {
         rotate: data.length > 6 ? 30 : 0,
-        color: "#6b6b6b",
+        color: "#b4b4b4",
       },
       axisLine: {
-        lineStyle: { color: "#e5e5e5" },
+        lineStyle: { color: "#333333" },
       },
     },
     yAxis: {
       type: "value",
       axisLabel: {
-        color: "#6b6b6b",
+        color: "#b4b4b4",
       },
       splitLine: {
-        lineStyle: { color: "#f0f0f0" },
+        lineStyle: { color: "#2f2f2f" },
       },
     },
     series: [
@@ -131,7 +131,7 @@ function ResultsChart({ data, language = "fr" }) {
         areaStyle:
           chartType === "line"
             ? {
-                color: "rgba(37, 99, 235, 0.12)",
+                color: "rgba(37, 99, 235, 0.15)",
               }
             : undefined,
       },

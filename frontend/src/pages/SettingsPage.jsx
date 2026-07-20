@@ -1,11 +1,11 @@
 const texts = {
   fr: {
     title: "Paramètres",
-    language: "Langue de l'interface",
+    language: "Langue",
   },
   en: {
     title: "Settings",
-    language: "Interface language",
+    language: "Language",
   },
 };
 
@@ -13,26 +13,24 @@ function SettingsPage({ lang, onLangChange }) {
   const t = texts[lang];
 
   return (
-    <main className="simple-page">
+    <main className="page-plain">
       <h1>{t.title}</h1>
-      <div className="settings-block">
-        <p>{t.language}</p>
-        <div className="settings-lang">
-          <button
-            type="button"
-            className={lang === "fr" ? "active" : ""}
-            onClick={() => onLangChange("fr")}
-          >
-            Français
-          </button>
-          <button
-            type="button"
-            className={lang === "en" ? "active" : ""}
-            onClick={() => onLangChange("en")}
-          >
-            English
-          </button>
-        </div>
+      <p className="muted">{t.language}</p>
+      <div className="lang-switch">
+        <button
+          type="button"
+          className={lang === "fr" ? "active" : ""}
+          onClick={() => onLangChange("fr")}
+        >
+          FR
+        </button>
+        <button
+          type="button"
+          className={lang === "en" ? "active" : ""}
+          onClick={() => onLangChange("en")}
+        >
+          EN
+        </button>
       </div>
     </main>
   );

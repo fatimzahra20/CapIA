@@ -2,22 +2,28 @@ import ResultsChart from "../components/ResultsChart";
 
 const texts = {
   fr: {
-    thinking: "Analyse en cours…",
-    askAgain: "Poser une autre question",
+    you: "Vous",
+    assistant: "CAP AI",
+    thinking: "Réflexion…",
     revenue: "Chiffre d'affaires",
     quantity: "Unités vendues",
     top: "Meilleur élément",
     rows: "Lignes",
-    interpretation: "Interprétation",
+    table: "Tableau",
+    interpretation: "Interprétation IA",
+    askAgain: "Nouvelle analyse",
   },
   en: {
-    thinking: "Analyzing…",
-    askAgain: "Ask another question",
+    you: "You",
+    assistant: "CAP AI",
+    thinking: "Thinking…",
     revenue: "Revenue",
     quantity: "Units sold",
     top: "Top item",
     rows: "Rows",
-    interpretation: "Interpretation",
+    table: "Table",
+    interpretation: "AI interpretation",
+    askAgain: "New analysis",
   },
 };
 
@@ -28,60 +34,99 @@ function formatAmount(value) {
 
 function ChatResult({ lang, loading, error, result, question, onReset }) {
   const t = texts[lang];
+  const columns =
+    result?.data?.length > 0 ? Object.keys(result.data[0]) : [];
 
   return (
-    <main className="result-page">
-      <div className="result-inner">
-        <div className="result-question">
-          <span className="result-label">Q</span>
-          <p>{question}</p>
-        </div>
+    <main className="conversation">
+      <div className="conversation-inner">
+        <section className="msg msg-user">
+          <div className="msg-role">{t.you}</div>
+          <div className="msg-body">{question}</div>
+        </section>
 
-        {loading && <p className="result-thinking">{t.thinking}</p>}
+        <section className="msg msg-assistant">
+          <div className="msg-role">{t.assistant}</div>
 
-        {error && <p className="result-error">{error}</p>}
+          {loading && <div className="msg-body thinking">{t.thinking}</div>}
 
-        {result && !loading && (
-          <div className="result-answer">
-            <div className="result-kpis">
-              <article>
-                <h3>{t.rows}</h3>
-                <p>{result.kpis?.row_count ?? 0}</p>
-              </article>
-              <article>
-                <h3>{t.revenue}</h3>
-                <p>{formatAmount(result.kpis?.total_amount)}</p>
-              </article>
-              <article>
-                <h3>{t.quantity}</h3>
-                <p>{result.kpis?.total_quantity ?? "-"}</p>
-              </article>
-              <article>
-                <h3>{t.top}</h3>
-                <p>
-                  {result.kpis?.top_item?.label
-                    ? `${result.kpis.top_item.label}`
-                    : "-"}
-                </p>
-              </article>
-            </div>
+          {error && !loading && <div className="msg-body error">{error}</div>}
 
-            {result.data?.length > 0 && (
-              <div className="result-chart">
-                <ResultsChart data={result.data} language={result.language || lang} />
+          {result && !loading && (
+            <div className="msg-body fade-in">
+              <p className="msg-text">
+                {lang === "fr"
+                  ? "Voici l'analyse de vos données."
+                  : "Here is the analysis of your data."}
+              </p>
+
+              <div className="kpi-row">
+                <article>
+                  <span>{t.rows}</span>
+                  <strong>{result.kpis?.row_count ?? 0}</strong>
+                </article>
+                <article>
+                  <span>{t.revenue}</span>
+                  <strong>{formatAmount(result.kpis?.total_amount)}</strong>
+                </article>
+                <article>
+                  <span>{t.quantity}</span>
+                  <strong>{result.kpis?.total_quantity ?? "-"}</strong>
+                </article>
+                <article>
+                  <span>{t.top}</span>
+                  <strong>{result.kpis?.top_item?.label ?? "-"}</strong>
+                </article>
               </div>
-            )}
 
-            <section className="result-interpretation">
-              <h2>{t.interpretation}</h2>
-              <p>{result.interpretation}</p>
-            </section>
-          </div>
+              {result.data?.length > 0 && (
+                <div className="panel">
+                  <ResultsChart
+                    data={result.data}
+                    language={result.language || lang}
+                  />
+                </div>
+              )}
+
+              {result.data?.length > 0 && (
+                <div className="panel table-panel">
+                  <h3>{t.table}</h3>
+                  <div className="table-wrap">
+                    <table>
+                      <thead>
+                        <tr>
+                          {columns.map((col) => (
+                            <th key={col}>{col}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {result.data.map((row, index) => (
+                          <tr key={index}>
+                            {columns.map((col) => (
+                              <td key={col}>{String(row[col] ?? "")}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              <div className="panel">
+                <h3>{t.interpretation}</h3>
+                <p>{result.interpretation}</p>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {!loading && (
+          <button type="button" className="ghost-btn" onClick={onReset}>
+            {t.askAgain}
+          </button>
         )}
-
-        <button type="button" className="result-reset" onClick={onReset}>
-          {t.askAgain}
-        </button>
       </div>
     </main>
   );

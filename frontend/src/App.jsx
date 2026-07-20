@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./fonts";
 import Sidebar from "./components/Sidebar";
 import HomePage from "./pages/HomePage";
 import ChatResult from "./pages/ChatResult";

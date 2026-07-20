@@ -2,19 +2,19 @@ const texts = {
   fr: {
     title: "Base de données",
     text:
-      "La connexion à une base externe sera disponible dans une prochaine version. Pour le moment, CAP AI utilise la base de démonstration PostgreSQL (ventes, produits, régions).",
+      "CAP AI est connecté à PostgreSQL (base de démonstration ventes / produits / régions). La connexion à une base externe arrivera plus tard.",
   },
   en: {
     title: "Database",
     text:
-      "External database connection will be available in a future version. For now, CAP AI uses the PostgreSQL demo database (sales, products, regions).",
+      "CAP AI is connected to PostgreSQL (sales / products / regions demo). External database connection will come later.",
   },
 };
 
 function DatabasePage({ lang }) {
   const t = texts[lang];
   return (
-    <main className="simple-page">
+    <main className="page-plain">
       <h1>{t.title}</h1>
       <p className="muted">{t.text}</p>
     </main>

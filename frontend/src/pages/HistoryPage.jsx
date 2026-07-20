@@ -43,14 +43,14 @@ function HistoryPage({ lang }) {
   }, [t.error]);
 
   return (
-    <main className="simple-page">
+    <main className="page-plain">
       <h1>{t.title}</h1>
       {loading && <p className="muted">{t.loading}</p>}
       {error && <p className="error">{error}</p>}
       {!loading && !error && history.length === 0 && (
         <p className="muted">{t.empty}</p>
       )}
-      <ul className="simple-list">
+      <ul className="history-plain">
         {history.map((item) => (
           <li key={item.id}>
             <strong>{item.question}</strong>
