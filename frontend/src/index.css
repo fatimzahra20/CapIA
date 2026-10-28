@@ -1,23 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+  --cap-bg: #f4f7fa;
+  --cap-sidebar: #0f2c3d;
+  --cap-sidebar-hover: #16384c;
+  --cap-accent: #0d9488;
+  --cap-accent-dark: #0f766e;
+  --cap-ink: #102a43;
+  --cap-muted: #627d98;
+  --cap-card: #ffffff;
+  --cap-border: #e3e8ef;
 }
 
 body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, sans-serif;
-  background: #212121;
-  color: #ececec;
+  background: var(--cap-bg);
+  color: var(--cap-ink);
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes softPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
   }
 }

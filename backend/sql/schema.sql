@@ -14,9 +14,13 @@ CREATE TABLE IF NOT EXISTS sales (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     sale_date DATE NOT NULL,
     region_id BIGINT NOT NULL REFERENCES regions(id),
-    product_id BIGINT NOT NULL REFERENCES products(id),
-    quantity INTEGER NOT NULL CHECK (quantity > 0),
-    total_amount NUMERIC(14, 2) NOT NULL CHECK (total_amount >= 0)
+    product_id BIGINT REFERENCES products(id),
+    quantity INTEGER CHECK (quantity IS NULL OR quantity > 0),
+    total_amount NUMERIC(14, 2),
+    cost NUMERIC(14, 2),
+    profit NUMERIC(14, 2),
+    description TEXT,
+    mixed_column VARCHAR(80)
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -24,6 +28,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(150) NOT NULL,
+    auth_provider VARCHAR(50) NOT NULL DEFAULT 'local',
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

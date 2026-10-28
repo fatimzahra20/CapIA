@@ -12,7 +12,7 @@ function MainLayout({
   refreshKey,
 }) {
   return (
-    <div className="min-h-screen bg-[#212121] text-[#ECECEC]">
+    <div className="min-h-screen bg-[#F4F7FA] text-[#102A43]">
       <Sidebar
         page={page}
         selectedId={selectedId}

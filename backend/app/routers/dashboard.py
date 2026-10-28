@@ -15,7 +15,9 @@ def dashboard_summary(db: Session = Depends(get_db)):
             """
             SELECT
                 COALESCE(SUM(total_amount), 0) AS total_amount,
-                COALESCE(SUM(quantity), 0) AS total_quantity,
+                COALESCE(SUM(profit), 0) AS total_profit,
+                COALESCE(SUM(cost), 0) AS total_cost,
+                COUNT(*) AS total_quantity,
                 COUNT(*) AS sales_count,
                 CASE
                     WHEN COUNT(*) > 0
@@ -42,11 +44,12 @@ def dashboard_summary(db: Session = Depends(get_db)):
     by_category = db.execute(
         text(
             """
-            SELECT p.category AS name, SUM(s.total_amount) AS total_sales
+            SELECT COALESCE(s.description, 'Sans description') AS name,
+                   SUM(s.total_amount) AS total_sales
             FROM sales s
-            JOIN products p ON p.id = s.product_id
-            GROUP BY p.category
-            ORDER BY total_sales DESC
+            GROUP BY COALESCE(s.description, 'Sans description')
+            ORDER BY total_sales DESC NULLS LAST
+            LIMIT 8
             """
         )
     ).mappings().all()
@@ -55,13 +58,13 @@ def dashboard_summary(db: Session = Depends(get_db)):
         text(
             """
             SELECT
-                p.name AS name,
-                SUM(s.quantity) AS total_quantity,
+                r.name AS name,
+                COUNT(*) AS total_quantity,
                 SUM(s.total_amount) AS total_sales
             FROM sales s
-            JOIN products p ON p.id = s.product_id
-            GROUP BY p.name
-            ORDER BY total_sales DESC
+            JOIN regions r ON r.id = s.region_id
+            GROUP BY r.name
+            ORDER BY total_sales DESC NULLS LAST
             LIMIT 5
             """
         )

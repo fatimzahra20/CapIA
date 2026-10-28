@@ -22,21 +22,67 @@ MESSAGES = {
 }
 
 
+import re
+
+_FR_WORDS = {
+    "affiche", "afficher", "montre", "montrer", "quelles", "quels", "quelle", "quel",
+    "donne", "donner", "ventes", "vente", "chiffre", "affaires", "durant", "pendant",
+    "trimestre", "mois", "annee", "année", "region", "région", "meilleure", "meilleur",
+    "combien", "interpretation", "interprétation", "explique", "expliquer",
+    "historique", "parametres", "paramètres", "produit", "produits", "cout", "coût",
+    "benefice", "bénéfice", "repartition", "répartition", "camembert", "graphique",
+    "evolution", "évolution", "total", "moyenne",
+}
+_EN_WORDS = {
+    "show", "display", "what", "which", "give", "tell", "sales", "revenue", "profit",
+    "cost", "during", "first", "quarter", "month", "year", "best", "top", "average",
+    "how", "many", "much", "more", "interpretation", "explain", "history", "settings",
+    "please", "region", "regions", "breakdown", "pie", "chart", "bar", "histogram",
+    "product", "products", "trend", "total", "by", "the", "is", "are", "for", "of",
+    "and", "with", "from", "each", "per",
+}
+
+
 def detect_language(text: str) -> str:
-    text_lower = text.lower()
-    french_markers = [
-        "affiche", "montre", "quelles", "quel", "donne", "ventes",
-        "région", "region", "par", "durant", "premier", "trimestre",
-    ]
-    english_markers = [
-        "show", "display", "what", "give", "sales", "region",
-        "by", "during", "first", "quarter",
-    ]
+    raw = (text or "").strip()
+    if not raw:
+        return "fr"
 
-    fr_score = sum(1 for word in french_markers if word in text_lower)
-    en_score = sum(1 for word in english_markers if word in text_lower)
+    lower = raw.lower()
 
-    return "fr" if fr_score >= en_score else "en"
+    # Accents français → FR
+    if re.search(r"[àâäéèêëïîôùûüçœ]", lower):
+        return "fr"
+
+    tokens = set(re.findall(r"[a-zàâäéèêëïîôùûüçœ']+", lower))
+
+    fr_score = len(tokens & _FR_WORDS)
+    en_score = len(tokens & _EN_WORDS)
+
+    # Amorces typiques
+    if re.match(r"^(show|what|which|give|how|display|tell|please)\b", lower):
+        en_score += 3
+    if re.match(r"^(affiche|montre|quel|quelle|quels|quelles|donne|combien)\b", lower):
+        fr_score += 3
+
+    if en_score > fr_score:
+        return "en"
+    if fr_score > en_score:
+        return "fr"
+
+    # Dernier recours : présence de mots anglais très marquants
+    if tokens & {"show", "what", "sales", "revenue", "profit", "which", "how"}:
+        return "en"
+    return "fr"
+
+
+def resolve_language(text: str = "", preferred: str | None = None) -> str:
+    """Prefer the UI/settings language when provided; otherwise detect from text."""
+    if preferred in ("fr", "en"):
+        return preferred
+    if (text or "").strip():
+        return detect_language(text)
+    return "fr"
 
 
 def msg(key: str, lang: str = "fr") -> str:

@@ -1,3 +1,12 @@
+"""
+Authentication helpers for CAP AI.
+
+v1: email/password login for accounts provisioned by an administrator.
+Future: architecture can accept enterprise SSO (e.g. PingID/OIDC) by
+exchanging an IdP token for the same internal JWT without changing
+user-scoped history APIs.
+"""
+
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -28,6 +37,7 @@ class UserOut(BaseModel):
     id: int
     email: str
     full_name: str
+    auth_provider: str | None = "local"
 
 
 def verify_password(plain_password: str, password_hash: str) -> bool:
@@ -47,7 +57,7 @@ def get_user_by_email(db: Session, email: str) -> Optional[dict]:
     row = db.execute(
         text(
             """
-            SELECT id, email, password_hash, full_name
+            SELECT id, email, password_hash, full_name, auth_provider
             FROM users
             WHERE lower(email) = lower(:email)
             """
@@ -61,7 +71,7 @@ def get_user_by_id(db: Session, user_id: int) -> Optional[dict]:
     row = db.execute(
         text(
             """
-            SELECT id, email, full_name
+            SELECT id, email, full_name, auth_provider
             FROM users
             WHERE id = :user_id
             """

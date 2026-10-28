@@ -1,31 +1,20 @@
 import { useEffect, useState } from "react";
-import {
-  Database,
-  History,
-  LogOut,
-  Plus,
-  Settings,
-  Sparkles,
-} from "lucide-react";
+import { History, LogOut, Plus, Settings, BarChart3 } from "lucide-react";
 import { fetchHistory } from "../services/api";
 
 const texts = {
   fr: {
     newAnalysis: "Nouvelle analyse",
     history: "Historique",
-    database: "Base de données",
     settings: "Paramètres",
-    recent: "Récentes",
-    connected: "PostgreSQL connecté",
+    recent: "Analyses récentes",
     logout: "Déconnexion",
   },
   en: {
     newAnalysis: "New analysis",
     history: "History",
-    database: "Database",
     settings: "Settings",
-    recent: "Recent",
-    connected: "PostgreSQL connected",
+    recent: "Recent analyses",
     logout: "Log out",
   },
 };
@@ -40,7 +29,7 @@ function Sidebar({
   lang,
   refreshKey,
 }) {
-  const t = texts[lang];
+  const t = texts[lang] || texts.fr;
   const [recent, setRecent] = useState([]);
 
   useEffect(() => {
@@ -60,23 +49,32 @@ function Sidebar({
   const navItems = [
     { id: "home", label: t.newAnalysis, icon: Plus },
     { id: "history", label: t.history, icon: History },
-    { id: "database", label: t.database, icon: Database },
-    { id: "settings", label: t.settings, icon: Settings },
   ];
 
+  const settingsActive = page === "settings";
+
   return (
-    <aside className="fixed left-0 top-0 z-20 flex h-screen w-[260px] flex-col border-r border-[#222] bg-[#171717]">
-      <div className="px-3 pt-4">
+    <aside className="fixed left-0 top-0 z-20 flex h-screen w-[260px] flex-col bg-[#0F2C3D] text-white">
+      <div className="px-4 pt-5">
         <button
           type="button"
           onClick={() => onNavigate("home")}
-          className="mb-3 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[15px] font-semibold text-[#ececec]"
+          className="mb-6 flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-left transition hover:bg-[#16384C]"
         >
-          <Sparkles size={16} className="text-[#2563EB]" />
-          CAP AI
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0D9488] shadow-sm">
+            <BarChart3 size={18} />
+          </span>
+          <span>
+            <span className="block text-[15px] font-semibold tracking-tight">
+              CAP AI
+            </span>
+            <span className="block text-[11px] text-white/55">
+              Conversational Analytics
+            </span>
+          </span>
         </button>
 
-        <nav className="flex flex-col gap-0.5">
+        <nav className="flex flex-col gap-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = page === item.id;
@@ -85,34 +83,34 @@ function Sidebar({
                 key={item.id}
                 type="button"
                 onClick={() => onNavigate(item.id)}
-                className={`flex items-center gap-2 rounded-[10px] px-3 py-2.5 text-left text-sm transition ${
+                className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm transition ${
                   active
-                    ? "bg-[#2A2A2A] text-white"
-                    : "text-[#ECECEC] hover:bg-[#212121]"
+                    ? "bg-[#0D9488] text-white shadow-sm"
+                    : "text-white/80 hover:bg-[#16384C] hover:text-white"
                 }`}
               >
                 <Icon size={16} />
-                {item.id === "home" ? `+ ${item.label}` : item.label}
+                {item.label}
               </button>
             );
           })}
         </nav>
       </div>
 
-      <div className="mt-5 flex-1 overflow-y-auto px-3">
-        <p className="mb-2 px-3 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
+      <div className="mt-6 min-h-0 flex-1 overflow-y-auto px-4">
+        <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-white/45">
           {t.recent}
         </p>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-1">
           {recent.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => onSelectAnalysis(item.id)}
-              className={`truncate rounded-[10px] px-3 py-2 text-left text-sm transition ${
+              className={`truncate rounded-xl px-3 py-2 text-left text-[13px] transition ${
                 selectedId === item.id
-                  ? "bg-[#2A2A2A] text-white"
-                  : "text-[#A1A1AA] hover:bg-[#212121] hover:text-[#ECECEC]"
+                  ? "bg-white/12 text-white"
+                  : "text-white/55 hover:bg-white/8 hover:text-white/90"
               }`}
               title={item.question}
             >
@@ -122,25 +120,31 @@ function Sidebar({
         </div>
       </div>
 
-      <div className="border-t border-[#222] px-4 py-4">
-        <div className="mb-3 flex items-center gap-2 text-sm text-[#A1A1AA]">
-          <span className="h-2 w-2 rounded-full bg-green-500" />
-          {t.connected}
+      <div className="mt-auto shrink-0 border-t border-white/10 px-4 py-4">
+        <div className="mb-0.5 text-sm font-medium">{user?.full_name}</div>
+        <div className="mb-3 truncate text-xs text-white/50">{user?.email}</div>
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => onNavigate("settings")}
+            className={`flex items-center gap-2 text-sm transition ${
+              settingsActive
+                ? "text-[#5EEAD4]"
+                : "text-white/60 hover:text-white"
+            }`}
+          >
+            <Settings size={14} />
+            {t.settings}
+          </button>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="flex items-center gap-2 text-sm text-white/60 transition hover:text-white"
+          >
+            <LogOut size={14} />
+            {t.logout}
+          </button>
         </div>
-        <div className="mb-1 text-sm font-medium text-[#ECECEC]">
-          {user?.full_name || "Utilisateur"}
-        </div>
-        <div className="mb-3 truncate text-xs text-[#A1A1AA]">
-          {user?.email}
-        </div>
-        <button
-          type="button"
-          onClick={onLogout}
-          className="flex items-center gap-2 text-sm text-[#A1A1AA] transition hover:text-white"
-        >
-          <LogOut size={14} />
-          {t.logout}
-        </button>
       </div>
     </aside>
   );

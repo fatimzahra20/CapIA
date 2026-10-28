@@ -5,8 +5,8 @@ function DataTable({ data, lang = "fr" }) {
   const title = lang === "en" ? "Table" : "Tableau";
 
   return (
-    <div className="mb-4 rounded-xl border border-[#333] bg-[#2A2A2A] p-3.5">
-      <h3 className="mb-2.5 text-sm font-semibold text-[#ECECEC]">{title}</h3>
+    <div className="mb-4 rounded-2xl border border-[#E3E8EF] bg-[#F8FAFC] p-3.5">
+      <h3 className="mb-2.5 text-sm font-semibold text-[#102A43]">{title}</h3>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
@@ -14,7 +14,7 @@ function DataTable({ data, lang = "fr" }) {
               {columns.map((col) => (
                 <th
                   key={col}
-                  className="border-b border-[#333] px-2.5 py-2 text-left font-medium text-[#A1A1AA]"
+                  className="border-b border-[#E3E8EF] px-2.5 py-2 text-left font-medium text-[#627D98]"
                 >
                   {col}
                 </th>
@@ -27,7 +27,7 @@ function DataTable({ data, lang = "fr" }) {
                 {columns.map((col) => (
                   <td
                     key={col}
-                    className="border-b border-[#333] px-2.5 py-2 text-[#ECECEC]"
+                    className="border-b border-[#E3E8EF] px-2.5 py-2 text-[#102A43]"
                   >
                     {String(row[col] ?? "")}
                   </td>

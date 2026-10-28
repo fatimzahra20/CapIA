@@ -4,7 +4,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.routers import ai, auth, dashboard, regions, sales
+from app.routers import ai, auth, dashboard, files, regions, sales
 from app.services.messages import bilingual
 
 app = FastAPI(
@@ -14,7 +14,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,6 +24,7 @@ app.include_router(auth.router)
 app.include_router(regions.router)
 app.include_router(sales.router)
 app.include_router(ai.router)
+app.include_router(files.router)
 app.include_router(dashboard.router)
 
 
